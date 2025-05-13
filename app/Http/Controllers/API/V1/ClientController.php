@@ -3,53 +3,114 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ClientResource;
 use App\Models\Client;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use OpenApi\Annotations as OA;
 
 /**
- * @OA\Tag(name="Clients")
+ * @OA\SecurityScheme(
+ *     securityScheme="bearerAuth",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT"
+ * )
+ */
+/**
+ * @OA\Tag(
+ *     name="Clients",
+ *     description="API Endpoints for Managing Clients"
+ * )
  */
 class ClientController extends Controller
 {
-    public function index(): JsonResponse
+    /**
+     * @OA\Get(
+     *     path="/api/v1/clients",
+     *     tags={"Clients"},
+     *     summary="List all clients with their programs",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Client"))
+     *         )
+     *     )
+     * )
+     */
+    public function index()
     {
-        $clients = Client::with(['programs' => function($query) {
-            $query->withPivot(['status', 'enrollment_date']);
-        }])->paginate(15);
-
         return response()->json([
-            'data' => ClientResource::collection($clients),
-            'meta' => [
-                'current_page' => $clients->currentPage(),
-                'total' => $clients->total()
-            ]
+            'data' => Client::with('programs')->get()
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    /**
+     * @OA\Post(
+     *     path="/api/v1/clients",
+     *     tags={"Clients"},
+     *     summary="Create a new client",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/ClientRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Client created",
+     *         @OA\JsonContent(ref="#/components/schemas/Client")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
+     *     )
+     * )
+     */
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|unique:clients',
             'phone_number' => 'nullable|string|max:20',
-            'birth_date' => 'nullable|date|before:today'
+            'birth_date' => 'nullable|date'
         ]);
 
         $client = Client::create($validated);
 
         return response()->json([
             'message' => 'Client created successfully',
-            'data' => new ClientResource($client)
+            'data' => $client
         ], 201);
     }
 
-    public function show(Client $client): JsonResponse
+    /**
+     * @OA\Get(
+     *     path="/api/v1/clients/{client}",
+     *     tags={"Clients"},
+     *     summary="Get a specific client with enrolled programs",
+     *     @OA\Parameter(
+     *         name="client",
+     *         in="path",
+     *         required=true,
+     *         description="Client ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/ClientWithPrograms")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Client not found"
+     *     )
+     * )
+     */
+    public function show(Client $client)
     {
         return response()->json([
-            'data' => new ClientResource($client->load('programs'))
+            'data' => $client->load(['programs' => function($query) {
+                $query->withPivot(['status', 'enrollment_date']);
+            }])
         ]);
     }
 }

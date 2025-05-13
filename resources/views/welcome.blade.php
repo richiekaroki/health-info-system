@@ -2,230 +2,137 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>mr.wam - Hospital Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Register - Health Info System</title>
     <style>
-        :root {
-            --primary-blue: #1a4b8c;
-            --secondary-blue: #2a75d6;
-            --light-blue: #e6f0fa;
-            --gold: #d4af37;
-            --light-gold: #f8f0d0;
-            --dark-gray: #2c3e50;
-            --medium-gray: #6c757d;
-            --light-gray: #f4f6f8;
-        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light-gray);
-            margin: 0;
-            padding: 0;
+            background-color: #f9fafb;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background-image: linear-gradient(135deg, var(--light-blue) 0%, #ffffff 100%);
+            height: 100vh;
+            margin: 0;
         }
         .container {
-            width: 420px;
-            padding: 40px;
-            background: #ffffff;
+            background: white;
+            padding: 2rem;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(26, 75, 140, 0.15);
-            border-top: 4px solid var(--gold);
-        }
-        .hospital-brand {
+            box-shadow: 0px 10px 20px rgba(0,0,0,0.1);
+            width: 360px;
+            max-width: 90%;
             text-align: center;
-            margin-bottom: 30px;
         }
-        .hospital-logo {
-            font-size: 36px;
-            font-weight: 700;
-            color: var(--primary-blue);
-            margin-bottom: 0;
-            letter-spacing: -0.5px;
+        h1 {
+            margin-bottom: 1rem;
+            color: #2d3748;
         }
-        .hospital-subname {
-            font-size: 22px;
-            color: var(--gold);
-            margin-top: -5px;
-            font-weight: 600;
+        form {
+            display: flex;
+            flex-direction: column;
+            margin-top: 1rem;
         }
-        .subtext {
-            text-align: center;
-            color: var(--medium-gray);
-            margin-bottom: 30px;
-            font-size: 14px;
-            letter-spacing: 0.5px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        input {
-            width: 100%;
-            padding: 14px;
-            border-radius: 6px;
-            border: 1px solid #d1d9e6;
-            font-size: 15px;
-            transition: all 0.3s ease;
+        input[type="text"], input[type="email"], input[type="password"] {
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
         input:focus {
-            outline: none;
-            border-color: var(--secondary-blue);
-            box-shadow: 0 0 0 3px rgba(42, 117, 214, 0.1);
+            border-color: #4299e1;
+            box-shadow: 0 0 5px rgba(66, 153, 225, 0.5);
         }
-        .btn {
-            width: 100%;
-            background: var(--primary-blue);
+        button {
+            padding: 0.8rem;
+            background-color: #4299e1;
             color: white;
+            font-weight: bold;
             border: none;
-            padding: 14px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 16px;
+            border-radius: 8px;
             cursor: pointer;
-            margin: 10px 0 15px;
-            transition: all 0.3s ease;
-            letter-spacing: 0.5px;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
         }
-        .btn:hover {
-            background: var(--secondary-blue);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(26, 75, 140, 0.2);
+        button:hover {
+            background-color: #2b6cb0;
         }
-        .btn-gold {
-            background: var(--gold);
-            color: var(--primary-blue);
+        .toggle-link {
+            margin-top: 1rem;
+            font-size: 0.9rem;
         }
-        .btn-gold:hover {
-            background: #e6c352;
+        .toggle-link a {
+            color: #4299e1;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .toggle-link a:hover {
+            text-decoration: underline;
         }
         .error {
-            color: #e74c3c;
-            font-size: 14px;
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: #fdecea;
-            border-radius: 4px;
-            border-left: 3px solid #e74c3c;
-        }
-        .toggle-form {
-            text-align: center;
-            margin-top: 20px;
-            color: var(--medium-gray);
-            font-size: 14px;
-        }
-        .toggle-form a {
-            color: var(--primary-blue);
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            border-bottom: 1px dotted var(--primary-blue);
-            padding-bottom: 1px;
-        }
-        .toggle-form a:hover {
-            color: var(--secondary-blue);
-            border-bottom: 1px solid var(--secondary-blue);
-        }
-        .form-container {
-            display: block;
-            animation: fadeIn 0.4s ease;
-        }
-        .hidden {
-            display: none;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            color: #e53e3e;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="hospital-brand">
-            <h1 class="hospital-logo">mr.wam</h1>
-            <div class="hospital-subname">hospital</div>
-            <div class="subtext">Health Information System Portal</div>
-        </div>
 
-        <!-- Login Form -->
-        <div id="login-form" class="form-container">
-            <h2 style="color: var(--primary-blue); text-align: center; margin-bottom: 25px;">Welcome Back</h2>
-            <form method="POST" action="{{ route('login.submit') }}">
-                @csrf
-                <div class="form-group">
-                    <label>
-                        <input type="email" name="email" value="{{ old('email') }}" placeholder="Email Address" required>
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="password" name="password" placeholder="Password" required>
-                    </label>
-                </div>
-                @if(session('login_error'))
-                    <div class="error">{{ session('login_error') }}</div>
-                @endif
-                <button class="btn" type="submit">Sign In</button>
-            </form>
-            <div class="toggle-form">
-                New to mr.wam? <a href="#" onclick="showRegister(); return false;">Create an account</a>
-            </div>
-        </div>
+<div class="container">
+    <!-- Login Form -->
+    <div id="login-form">
+        <h1>Login</h1>
 
-        <!-- Register Form -->
-        <div id="register-form" class="form-container hidden">
-            <h2 style="color: var(--primary-blue); text-align: center; margin-bottom: 25px;">Create Account</h2>
-            <form method="POST" action="{{ route('register') }}">
-                @csrf
-                <div class="form-group">
-                    <label>
-                        <input type="text" name="name" value="{{ old('name') }}" placeholder="Full Name" required>
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="email" name="email" value="{{ old('email') }}" placeholder="Email Address" required>
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="password" name="password" placeholder="Create Password" required>
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="password" name="password_confirmation" placeholder="Confirm Password" required>
-                    </label>
-                </div>
-                @if($errors->any())
-                    <div class="error">
-                        <ul style="margin: 0; padding: 0 0 0 1em;">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-                <button class="btn btn-gold" type="submit">Register Now</button>
-            </form>
-            <div class="toggle-form">
-                Already have an account? <a href="#" onclick="showLogin(); return false;">Sign in here</a>
-            </div>
+        @if(session('login_error'))
+            <div class="error">{{ session('login_error') }}</div>
+        @endif
+
+        <form method="POST" action="{{ route('login.submit') }}">
+            @csrf
+            <input type="email" name="email" placeholder="Email" required autofocus>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="toggle-link">
+            Don't have an account? <a href="#" onclick="showRegister()">Register</a>
         </div>
     </div>
 
-    <script>
-        function showRegister() {
-            document.getElementById('login-form').classList.add('hidden');
-            document.getElementById('register-form').classList.remove('hidden');
-            document.getElementById('register-form').style.animation = 'fadeIn 0.4s ease';
-        }
+    <!-- Register Form -->
+    <div id="register-form" style="display:none;">
+        <h1>Register</h1>
 
-        function showLogin() {
-            document.getElementById('register-form').classList.add('hidden');
-            document.getElementById('login-form').classList.remove('hidden');
-            document.getElementById('login-form').style.animation = 'fadeIn 0.4s ease';
-        }
-    </script>
+        @if(session('register_error'))
+            <div class="error">{{ session('register_error') }}</div>
+        @endif
+
+        <form method="POST" action="{{ route('register') }}">
+            @csrf
+            <input type="text" name="name" placeholder="Full Name" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <input type="password" name="password_confirmation" placeholder="Confirm Password" required>
+            <button type="submit">Register</button>
+        </form>
+
+        <div class="toggle-link">
+            Already have an account? <a href="#" onclick="showLogin()">Login</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showRegister() {
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('register-form').style.display = 'block';
+    }
+    function showLogin() {
+        document.getElementById('register-form').style.display = 'none';
+        document.getElementById('login-form').style.display = 'block';
+    }
+</script>
+
 </body>
 </html>

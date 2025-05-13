@@ -1,72 +1,91 @@
 <?php
 
+// app/Http/Controllers/API/V1/ProgramController.php
 namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreProgramRequest;
-use App\Http\Resources\ProgramResource;
 use App\Models\Program;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Tag(
+ *     name="Programs",
+ *     description="API Endpoints for Managing Health Programs"
+ * )
+ */
 class ProgramController extends Controller
 {
-    public function index(): JsonResponse
+    /**
+     * @OA\Post(
+     *     path="/api/v1/programs",
+     *     tags={"Programs"},
+     *     summary="Create a new health program",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/ProgramRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Program created",
+     *         @OA\JsonContent(ref="#/components/schemas/Program")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
+     *     )
+     * )
+     */
+    public function store(Request $request)
     {
-        $programs = Program::query()
-            ->withCount('clients')
-            ->paginate(15);
-
-        return response()->json([
-            'data' => ProgramResource::collection($programs),
-            'meta' => [
-                'current_page' => $programs->currentPage(),
-                'total' => $programs->total()
-            ]
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'summary' => 'nullable|string',
+            'is_active' => 'sometimes|boolean'
         ]);
-    }
 
-    public function store(StoreProgramRequest $request): JsonResponse
-    {
-        $program = Program::create($request->validated() + [
-            'created_by' => auth()->id()
-        ]);
+        $program = Program::create($validated);
 
         return response()->json([
             'message' => 'Program created successfully',
-            'data' => new ProgramResource($program)
+            'data' => $program
         ], 201);
     }
 
-    public function show(Program $program): JsonResponse
+    /**
+     * @OA\Get(
+     *     path="/api/v1/programs/{program}/clients",
+     *     tags={"Programs"},
+     *     summary="List clients enrolled in a program",
+     *     @OA\Parameter(
+     *         name="program",
+     *         in="path",
+     *         required=true,
+     *         description="Program ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/ClientWithEnrollment")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Program not found"
+     *     )
+     * )
+     */
+    public function clients(Program $program)
     {
         return response()->json([
-            'data' => new ProgramResource($program->loadCount('clients'))
-        ]);
-    }
-
-    public function clients(Program $program): JsonResponse
-    {
-        $this->authorize('viewClients', $program);
-
-        $clients = $program->clients()
-            ->withPivot(['status', 'enrollment_date'])
-            ->paginate(15);
-
-        return response()->json([
-            'data' => $clients->map(function ($client) {
-                return [
-                    'id' => $client->id,
-                    'name' => $client->full_name,
-                    'email' => $client->email,
-                    'status' => $client->pivot->status,
-                    'enrolled_at' => $client->pivot->enrollment_date
-                ];
-            }),
-            'meta' => [
-                'program' => new ProgramResource($program),
-                'current_page' => $clients->currentPage(),
-                'total' => $clients->total()
-            ]
+            'data' => $program->clients()->withPivot('status', 'enrollment_date')->get()
         ]);
     }
 }
