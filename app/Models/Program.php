@@ -19,12 +19,12 @@ class Program extends Model
     /**
      * Relationship: Clients enrolled in this program
      */
-    public function clients()
-    {
-        return $this->belongsToMany(Client::class, 'client_program')    
-            ->withPivot(['status', 'enrollment_date'])
-            ->withTimestamps();
-    }
+  public function clients()
+{
+    return $this->belongsToMany(Client::class)
+        ->withPivot(['status', 'enrollment_date', /* other fields */])
+        ->withTimestamps();
+}
 
     /**
      * Scope: Only active programs
@@ -32,5 +32,13 @@ class Program extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * Accessor: Get the count of active clients
+     */
+    public function getActiveClientsCountAttribute()
+    {
+        return $this->clients()->wherePivot('status', 'active')->count();
     }
 }

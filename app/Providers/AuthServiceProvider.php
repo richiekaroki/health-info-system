@@ -2,30 +2,27 @@
 
 namespace App\Providers;
 
+use App\Models\Client;
+use App\Models\Program;
+use App\Policies\ClientPolicy;
+use App\Policies\ProgramPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
-        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
+        Client::class => ClientPolicy::class,
+        Program::class => ProgramPolicy::class,
     ];
 
-    public function boot()
+    public function boot(): void
     {
         $this->registerPolicies();
 
-        // Add Gate definitions here (recommended location)
+        // Implicitly grant "admin" role all permissions
         Gate::before(function ($user, $ability) {
-            // Grant super admin full access
-            if ($user->isSuperAdmin()) {
-                return true;
-            }
-        });
-
-        // Or define specific abilities
-        Gate::define('update-post', function ($user, $post) {
-            return $user->id === $post->user_id;
+            return $user->hasRole('admin') ? true : null;
         });
     }
 }
