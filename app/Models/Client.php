@@ -22,17 +22,21 @@ class Client extends Model
      */
     protected $casts = [
         'birth_date' => 'date:Y-m-d',
+        'metadata' => 'array',
+        'last_contact_at' => 'datetime',
+        'status_changed_at' => 'datetime'
     ];
 
     /**
      * Relationship: Programs the client is enrolled in
      */
     public function programs()
-    {
-        return $this->belongsToMany(Program::class, 'client_program')
-            ->withPivot(['status', 'enrollment_date'])
-            ->withTimestamps();
-    }
+{
+    return $this->belongsToMany(Program::class)
+        ->withPivot(['status', 'enrollment_date', /* other fields */])
+        ->withTimestamps();
+}
+
 
     /**
      * Scope: Only active clients (enrolled in active programs)
