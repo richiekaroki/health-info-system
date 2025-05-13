@@ -3,46 +3,40 @@
 namespace App\Observers;
 
 use App\Models\Client;
+use App\Notifications\ClientCreatedNotification;
 
 class ClientObserver
 {
-    /**
-     * Handle the Client "created" event.
-     */
     public function created(Client $client): void
     {
-        //
+        // Notify assigned provider
+        if ($client->primary_provider_id) {
+            $client->primaryProvider->notify(
+                new ClientCreatedNotification($client)
+            );
+        }
+
+        // Log creation
+        activity()
+            ->performedOn($client)
+            ->log('Client created');
     }
 
-    /**
-     * Handle the Client "updated" event.
-     */
     public function updated(Client $client): void
     {
-        //
+        activity()
+            ->performedOn($client)
+            ->withProperties($client->getChanges())
+            ->log('Client updated');
     }
 
-    /**
-     * Handle the Client "deleted" event.
-     */
     public function deleted(Client $client): void
     {
-        //
-    }
+        activity()
+            ->performedOn($client)
+            ->log('Client deleted');
 
-    /**
-     * Handle the Client "restored" event.
-     */
-    public function restored(Client $client): void
-    {
-        //
-    }
-
-    /**
-     * Handle the Client "force deleted" event.
-     */
-    public function forceDeleted(Client $client): void
-    {
-        //
+        // Clean up relationships
+        $client->programs()->detach();
     }
 }

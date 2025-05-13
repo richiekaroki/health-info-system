@@ -6,42 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(): void
-    {
+public function up()
+{
+    if (!Schema::hasTable('programs')) {
         Schema::create('programs', function (Blueprint $table) {
-            // Primary Key
-            $table->id()->comment('Unique program identifier');
-
-            // Program Details
-            $table->string('code', 10)->unique()->comment('Short program identifier');
-            $table->string('title')->index();
+            $table->id();
+            $table->string('code', 10)->unique();
+            $table->string('title');
             $table->text('description');
             $table->integer('duration_weeks')->unsigned()->default(4);
-            $table->decimal('cost', 10, 2)->nullable()->comment('Base price in local currency');
-
-            // Scheduling
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
-            $table->integer('max_participants')->nullable();
-
-            // Status
+            $table->decimal('cost', 10, 2)->nullable();
+            $table->unsignedBigInteger('category_id')->nullable(); // No FK here
+            $table->unsignedBigInteger('created_by')->nullable(); // No FK here
             $table->boolean('is_active')->default(true);
-            $table->enum('type', ['wellness', 'rehabilitation', 'fitness', 'education'])->default('wellness');
-
-            // Relationships
-            $table->foreignId('created_by')->constrained('users');
-            $table->foreignId('category_id')->nullable()->constrained('program_categories');
-
-            // Timestamps
-            $table->softDeletes();
+            $table->enum('type', ['wellness','rehabilitation','fitness','education'])->default('wellness');
             $table->timestamps();
-
-            // Indexes
-            $table->index(['is_active', 'type']);
-            $table->index(['start_date', 'end_date']);
+            $table->softDeletes();
         });
     }
-
+}
     public function down(): void
     {
         Schema::dropIfExists('programs');

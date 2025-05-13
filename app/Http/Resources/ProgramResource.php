@@ -6,45 +6,43 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProgramResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
     public function toArray($request)
     {
         return [
             'id' => $this->id,
+            'code' => $this->code,
             'title' => $this->title,
             'description' => $this->description,
-            'duration_weeks' => $this->duration_weeks,
-            'is_active' => $this->is_active,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'duration' => $this->duration_weeks . ' weeks',
+            'status' => $this->is_active ? 'Active' : 'Inactive',
+            'type' => ucfirst($this->type),
+            'cost' => $this->cost ? '$' . number_format($this->cost, 2) : 'Free',
 
-            // Relationship data (only loaded when requested)
-            'clients' => $this->whenLoaded('clients', function () {
-                return $this->clients->map(function ($client) {
+            // Relationships
+            'category' => $this->whenLoaded('category', fn() => [
+                'id' => $this->category->id,
+                'name' => $this->category->name
+            ]),
+
+            'clients' => $this->whenLoaded('clients', function() {
+                return $this->clients->map(function($client) {
                     return [
                         'id' => $client->id,
-                        'full_name' => $client->full_name,
+                        'name' => $client->full_name,
                         'status' => $client->pivot->status,
-                        'enrollment_date' => $client->pivot->enrollment_date,
+                        'enrolled_on' => $client->pivot->enrollment_date->format('M d, Y'),
+                        'coach_id' => $client->pivot->assigned_coach_id
                     ];
                 });
             }),
 
-            // Active clients (only loaded when requested)
-            'active_clients' => $this->whenLoaded('clients', function () {
-                return $this->active_clients_count;
-            }),
+            // Statistics
+            'clients_count' => $this->whenNotNull($this->clients_count),
+            'active_clients_count' => $this->whenNotNull($this->active_clients_count),
 
-            // Statistics (computed properties)
-            'active_clients_count' => $this->when(
-                $this->clients_count !== null,
-                $this->clients_count
-            ),
+            // Meta
+            'created_at' => $this->created_at->format('Y-m-d'),
+            'created_by' => $this->creator->name ?? null
         ];
     }
 }

@@ -4,41 +4,38 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Program extends Model
 {
-    /**
-     * The attributes that are mass assignable.
-     */
     protected $fillable = [
-        'title',
-        'summary',
-        'is_active'
+        'title', 'description', 'duration_weeks', 'is_active',
+        'code', 'cost', 'start_date', 'end_date', 'max_participants', 'type'
     ];
 
-    /**
-     * Relationship: Clients enrolled in this program
-     */
-  public function clients()
-{
-    return $this->belongsToMany(Client::class)
-        ->withPivot(['status', 'enrollment_date', /* other fields */])
-        ->withTimestamps();
-}
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(ProgramCategory::class);
+    }
 
-    /**
-     * Scope: Only active programs
-     */
+    public function clients(): BelongsToMany
+    {
+        return $this->belongsToMany(Client::class)
+            ->using(ClientProgram::class)
+            ->withPivot([
+                'status',
+                'enrollment_date',
+                'completion_date',
+                'actual_cost',
+                'attendance_weeks',
+                'medical_clearance'
+            ])
+            ->withTimestamps();
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
-    }
-
-    /**
-     * Accessor: Get the count of active clients
-     */
-    public function getActiveClientsCountAttribute()
-    {
-        return $this->clients()->wherePivot('status', 'active')->count();
     }
 }

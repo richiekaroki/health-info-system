@@ -11,6 +11,9 @@ use Illuminate\Http\JsonResponse;
 
 class EnrollmentController extends Controller
 {
+    /**
+     * Enroll client in programs
+     */
     public function enroll(EnrollmentRequest $request, Client $client): JsonResponse
     {
         $this->authorize('enroll', $client);
@@ -18,39 +21,45 @@ class EnrollmentController extends Controller
         $validated = $request->validated();
 
         $client->programs()->syncWithoutDetaching(
-            collect($validated['program_ids'])
-                ->mapWithKeys(fn ($id) => [
-                    $id => [
-                        'status' => $validated['status'] ?? 'active',
-                        'enrollment_date' => $validated['enrollment_date'] ?? now()
-                    ]
-                ])
+            $this->prepareProgramAttachments($validated)
         );
 
         return response()->json([
             'message' => 'Enrollment successful',
-            'data' => new ClientResource($client->load('programs'))
+            'data' => new ClientResource($client->load(['programs' => function($query) {
+                $query->withPivot(['status', 'enrollment_date']);
+            }]))
         ], 201);
     }
 
+    /**
+     * Unenroll client from program
+     */
     public function unenroll(Client $client, Program $program): JsonResponse
     {
-        $this->authorize('unenroll', $client);
+        $this->authorize('unenroll', [$client, $program]);
 
         $client->programs()->detach($program->id);
 
         return response()->json([
             'message' => 'Unenrollment successful',
-            'data' => new ClientResource($client->load('programs'))
+            'data' => new ClientResource($client->fresh()->load('programs'))
         ]);
     }
 
-    public function show(Client $client): JsonResponse
+    /**
+     * Prepare program attachments with pivot data
+     */
+    protected function prepareProgramAttachments(array $validated): array
     {
-        $this->authorize('view', $client);
-
-        return response()->json([
-            'data' => new ClientResource($client->load('programs'))
-        ]);
+        return collect($validated['program_ids'])
+            ->mapWithKeys(fn ($id) => [
+                $id => [
+                    'status' => $validated['status'] ?? 'pending',
+                    'enrollment_date' => $validated['enrollment_date'] ?? now(),
+                    'assigned_coach_id' => $validated['coach_id'] ?? null
+                ]
+            ])
+            ->toArray();
     }
 }

@@ -1,131 +1,135 @@
-Health Information System API
+# Health Information System API + Blade UI
 
-A simple Laravel-based API to manage client registrations, health program enrollments, and secure authentication using Sanctum.
+![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 
-Features
-User Registration and Login
-Manage Clients
-Manage Health Programs (TB, Malaria, etc.)
-Enroll and Unenroll Clients into Programs
-Search Clients by Name
-View Client Profiles and Enrollments
-Secure API Authentication (Laravel Sanctum)
-API Documentation Provided
+A robust Laravel-based API for managing client health programs with secure authentication.
 
-Technology Stack
-Backend Laravel 12 (PHP 8.2)
-Authentication Sanctum
-Database MySQL
-Testing Postman, PowerShell Scripts
-Frontend Blade Templates (Login/Register/Dashboard)
+## ✨ Features
 
-Installation & Setup
-Clone the repository:
+-   **Dual Authentication**
+    -   Web UI (Session-based)
+    -   API (Sanctum tokens)
+-   **Health Program Management**
+    -   Programs available (TB, Malaria, and other )
+    -   Client enrollment tracking
+-   **Search & Reporting**
+    -   Client search by name
+    -   Enrollment status reports
 
-bash
+## 🛠 Technology Stack
+
+| Component         | Technology          |
+| ----------------- | ------------------- |
+| Backend Framework | Laravel 12(PHP 8.2) |
+| Authentication    | Laravel Sanctum     |
+| Database          | MySQL 8.0+          |
+| API Documentation | Swagger/OpenAPI     |
+| Frontend          | Blade Templates     |
+
+## ⚙️ System Requirements
+
+-   PHP 8.2+
+-   MySQL 8.0+
+-   Composer 2.5+
+-   Node.js 18+ (for frontend assets) (Optional for those using frameworks)
+
+## 🚀 Installation
+
+### 1. Clone Repository
+
+```bash
 git clone https://github.com/richiekaroki/health-info-system.git
 cd health-info-system
 
-Install PHP dependencies:
-
+2. Install Dependencies
 bash
 composer install
-Copy .env file and generate app key:
+npm install && npm run build
 
+3. Configure Environment
 bash
 cp .env.example .env
 php artisan key:generate
-Setup Database:
 
-Update .env database variables (DB_DATABASE, DB_USERNAME, DB_PASSWORD).
-Use MySQL.
-Run Migrations:
+Edit .env:
+ini
+DB_DATABASE=health_db
+DB_USERNAME=root
+DB_PASSWORD=your_password
 
+4. Database Setup
 bash
-php artisan migrate
+php artisan migrate --seed
 
-Serve the Application:
+5. Start Development Server
 bash
 php artisan serve
-Access your app at: http://127.0.0.1:8000
+Access: http://127.0.0.1:8000
 
-🛣️ Project Structure (High Level)
-plaintext
-app/
-├── Http/
-│ ├── Controllers/
-│ │ ├── API/V1/AuthController.php (API login/register)
-│ │ ├── API/V1/ClientController.php
-│ │ ├── API/V1/ProgramController.php
-│ │ ├── API/V1/EnrollmentController.php
-│ │ └── Auth/LoginController.php (Web login)
-│ │ └── Auth/RegisterController.php (Web register)
-│ └── Requests/
-├── Models/
-│ ├── Client.php
-│ ├── Program.php
-│ └── User.php
-database/
-├── migrations/
-├── seeders/
-routes/
-├── api.php
-├── web.php
-resources/
-├── views/
-│ ├── auth/login-register.blade.php
-│ ├── dashboard.blade.php
-
-Set environment variable:
+🔐 API Authentication Flow
+Sample Request: Login
 bash
-base_url = http://127.0.0.1:8000/api/v1
+curl -X POST http://127.0.0.1:8000/api/v1/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com","password":"password"}'
 
-Test:
-Register
-Login
-CRUD Clients/Programs
-Enrollment/Unenrollment
-Client Search
-View Profile
+Sample Response
+json
+{
+  "token": "1|AbCdE...",
+  "user": {
+    "id": 1,
+    "name": "Admin User",
+    "email": "admin@example.com"
+  }
+}
 
-PowerShell API Test Script
-File: HealthSystem_API_Test.ps1
-
-Automatically tests:
-Register
-Login
-Protected Client Fetch
-Logout
-
-Run it:
+Using the Token
 bash
-.\HealthSystem_API_Test.ps1
-✅ Quick verification without opening Postman.
+curl -H "Authorization: Bearer 1|AbCdE..." \
+  http://127.0.0.1:8000/api/v1/clients
 
-Running Tests
-Type Tool How to Run
-CLI API Testing PowerShell Run .ps1 script
+📚 API Documentation
+Interactive Swagger docs available at:
+http://localhost:8000/api/documentation
 
-Expected API Responses:
-201 Created → Successful Registration, Client, Program creation
-200 OK → Login, Fetch, Enrollments
-401 Unauthorized → Invalid login or expired token
-422 Validation Error → Bad form submission
+🚨 Troubleshooting
+Common Issues
+Migration Errors
 
-Default Credentials (Seeder Data)
-Admin Email: admin@example.com
+bash
+# Reset and re-run
+php artisan migrate:fresh --seed
+Token Authentication Fails
 
-Password: password
+Verify SANCTUM_STATEFUL_DOMAINS in .env
 
-Key Demo Highlights
-Clean separation of Web Auth (Sessions) and API Auth (Tokens)
-RESTful API architecture
-Mobile-responsive Login and Register pages
-Dashboard landing page with Logout
-API security (Laravel Sanctum)
-Automated CLI Testing
-API Documentation
+Check token expiration (default: 7 days)
 
-Available at:
-http://127.0.0.1:8000/api/documentation
-(You can add Swagger later if required.)
+Swagger Docs Not Loading
+
+bash
+php artisan l5-swagger:generate
+Production Checklist
+ini
+# .env.production
+APP_ENV=production
+APP_DEBUG=false
+SESSION_SECURE_COOKIE=true
+SANCTUM_TOKEN_EXPIRATION=1440  # 1 day
+🤝 Contributing
+Fork the repository
+
+Create a feature branch (git checkout -b feature/amazing-feature)
+
+Commit changes (git commit -m 'Add amazing feature')
+
+Push to branch (git push origin feature/amazing-feature)
+
+Open a Pull Request
+
+
+
+```
