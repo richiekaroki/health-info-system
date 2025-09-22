@@ -48,7 +48,7 @@ return new class extends Migration
             // Indexes
             $table->index(['status', 'created_at']);
             $table->index(['primary_provider_id', 'status']);
-            $table->fullText(['full_name', 'email', 'phone']);
+            $table->index(['full_name', 'email', 'phone']); // Changed from fullText to regular index for SQLite
         });
     }
 
