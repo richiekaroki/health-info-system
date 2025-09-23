@@ -11,9 +11,12 @@ class ClientResource extends JsonResource
         return [
             'id' => $this->id,
             'full_name' => $this->full_name,
+            'preferred_name' => $this->preferred_name,
             'email' => $this->email,
-            'phone_number' => $this->phone_number,
+            'phone' => $this->phone,
+            'phone_alt' => $this->phone_alt,
             'birth_date' => $this->birth_date,
+            'status' => $this->status,
             'programs' => $this->whenLoaded('programs', function () {
                 return $this->programs->map(function ($program) {
                     return [

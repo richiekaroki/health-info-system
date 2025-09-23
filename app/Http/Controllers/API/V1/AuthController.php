@@ -1,6 +1,5 @@
 <?php
 
-// app/Http/Controllers/API/V1/AuthController.php
 namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
@@ -38,8 +37,8 @@ class AuthController extends Controller
         }
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'name'     => $request->name,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
@@ -47,15 +46,15 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Registration successful',
-            'user' => $user,
-            'token' => $token
+            'user'    => $user,
+            'token'   => $token
         ], 201);
     }
 
     public function login(Request $request): JsonResponse
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email'    => ['required', 'email'],
             'password' => ['required'],
         ]);
 
@@ -65,12 +64,13 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $user = $request->user();
+        $user  = $request->user();
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([
-            'token' => $token,
-            'user' => $user
+            'message' => 'Login successful',
+            'token'   => $token,
+            'user'    => $user
         ]);
     }
 

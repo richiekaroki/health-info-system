@@ -18,7 +18,6 @@ class ProgramResource extends JsonResource
             'type' => ucfirst($this->type),
             'cost' => $this->cost ? '$' . number_format($this->cost, 2) : 'Free',
 
-            // Relationships
             'category' => $this->whenLoaded('category', fn() => [
                 'id' => $this->category->id,
                 'name' => $this->category->name
@@ -30,17 +29,15 @@ class ProgramResource extends JsonResource
                         'id' => $client->id,
                         'name' => $client->full_name,
                         'status' => $client->pivot->status,
-                        'enrolled_on' => $client->pivot->enrollment_date->format('M d, Y'),
+                        'enrolled_on' => optional($client->pivot->enrollment_date)->format('Y-m-d'),
                         'coach_id' => $client->pivot->assigned_coach_id
                     ];
                 });
             }),
 
-            // Statistics
             'clients_count' => $this->whenNotNull($this->clients_count),
             'active_clients_count' => $this->whenNotNull($this->active_clients_count),
 
-            // Meta
             'created_at' => $this->created_at->format('Y-m-d'),
             'created_by' => $this->creator->name ?? null
         ];

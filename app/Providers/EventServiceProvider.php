@@ -5,7 +5,16 @@ namespace App\Providers;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
+
+use App\Models\Client;
+use App\Models\User;
+use App\Models\Program;
+use App\Models\Enrollment;
+
+use App\Observers\ClientObserver;
+use App\Observers\UserObserver;
+use App\Observers\ProgramObserver;
+use App\Observers\EnrollmentObserver;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -13,19 +22,15 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
-        'order.placed' => [
-            'App\Listeners\ProcessOrderPayment',
-            'App\Listeners\SendOrderConfirmation',
-        ],
     ];
 
-    public function boot()
+    public function boot(): void
     {
         parent::boot();
 
-        // Dynamic event registration
-        Event::listen('user.login', function ($user) {
-            $user->update(['last_login_at' => now()]);
-        });
+        Client::observe(ClientObserver::class);
+        User::observe(UserObserver::class);
+        Program::observe(ProgramObserver::class);
+        Enrollment::observe(EnrollmentObserver::class);
     }
 }

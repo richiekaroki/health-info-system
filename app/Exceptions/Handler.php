@@ -6,6 +6,7 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 use Illuminate\Auth\AuthenticationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Validation\ValidationException;
 
 class Handler extends ExceptionHandler
 {
@@ -44,5 +45,19 @@ class Handler extends ExceptionHandler
                 ], 401);
             }
         });
+
+        $this->renderable(function (ValidationException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'error' => [
+                        'code' => 422,
+                        'message' => 'Validation failed',
+                        'details' => $e->errors()
+                    ]
+                ], 422);
+            }
+        });
+
+        // You can add more renderables here if you want custom JSON for other exceptions.
     }
 }
