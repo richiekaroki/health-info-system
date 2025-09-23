@@ -13,7 +13,8 @@ class ClientPolicy
 
     public function before(User $user, $ability)
     {
-        if ($user->isAdmin()) {
+        // Ensure User model has an isAdmin() helper or replace with $user->hasRole('admin')
+        if (method_exists($user, 'isAdmin') && $user->isAdmin()) {
             return true;
         }
     }

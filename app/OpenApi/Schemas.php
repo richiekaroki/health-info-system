@@ -12,7 +12,7 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="id", type="integer"),
  *     @OA\Property(property="full_name", type="string"),
  *     @OA\Property(property="email", type="string", format="email"),
- *     @OA\Property(property="phone_number", type="string", nullable=true),
+ *     @OA\Property(property="phone", type="string", nullable=true),
  *     @OA\Property(property="birth_date", type="string", format="date", nullable=true)
  * )
  *
@@ -22,7 +22,7 @@ use OpenApi\Annotations as OA;
  *     required={"full_name", "email"},
  *     @OA\Property(property="full_name", type="string", example="John Doe"),
  *     @OA\Property(property="email", type="string", format="email", example="john@example.com"),
- *     @OA\Property(property="phone_number", type="string", example="+1234567890", nullable=true),
+ *     @OA\Property(property="phone", type="string", example="+1234567890", nullable=true),
  *     @OA\Property(property="birth_date", type="string", format="date", example="1990-01-01", nullable=true)
  * )
  *
@@ -47,7 +47,7 @@ use OpenApi\Annotations as OA;
  *     required={"title"},
  *     @OA\Property(property="id", type="integer"),
  *     @OA\Property(property="title", type="string"),
- *     @OA\Property(property="summary", type="string", nullable=true),
+ *     @OA\Property(property="description", type="string", nullable=true),
  *     @OA\Property(property="is_active", type="boolean", default=true)
  * )
  *
@@ -56,7 +56,7 @@ use OpenApi\Annotations as OA;
  *     type="object",
  *     required={"title"},
  *     @OA\Property(property="title", type="string", example="Weight Loss Program"),
- *     @OA\Property(property="summary", type="string", example="A 12-week weight loss program", nullable=true),
+ *     @OA\Property(property="description", type="string", example="A 12-week weight loss program", nullable=true),
  *     @OA\Property(property="is_active", type="boolean", example=true)
  * )
  *
@@ -75,7 +75,7 @@ use OpenApi\Annotations as OA;
  *     schema="EnrollmentPivot",
  *     type="object",
  *     @OA\Property(property="status", type="string", example="active"),
- *     @OA\Property(property="enrollment_date", type="string", format="date", example="2023-01-15")
+ *     @OA\Property(property="enrollment_date", type="string", format="date", example="2025-05-13")
  * )
  */
 class Schemas {}

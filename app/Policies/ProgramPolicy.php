@@ -12,33 +12,33 @@ class ProgramPolicy
 
     public function viewAny(User $user): bool
     {
-        return true; // Publicly visible
+        return true; // All users can see program lists
     }
 
     public function view(User $user, Program $program): bool
     {
-        return true; // Publicly visible
+        return true; // All users can view details
     }
 
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('create programs');
+        return $user->can('create programs');
     }
 
     public function update(User $user, Program $program): bool
     {
-        return $user->hasPermissionTo('edit programs') ||
+        return $user->can('edit programs') ||
                $program->created_by === $user->id;
     }
 
     public function delete(User $user, Program $program): bool
     {
-        return $user->hasPermissionTo('delete programs');
+        return $user->can('delete programs');
     }
 
     public function viewClients(User $user, Program $program): bool
     {
-        return $user->hasPermissionTo('view program clients') ||
+        return $user->can('view program clients') ||
                $program->created_by === $user->id;
     }
 }
