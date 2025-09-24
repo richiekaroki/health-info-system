@@ -6,77 +6,79 @@
 
 A robust Laravel-based API for managing client health programs with secure authentication.
 
-## ✨ Features
+## Features
 
--   **Dual Authentication**
-    -   Web UI (Session-based)
-    -   API (Sanctum tokens)
--   **Health Program Management**
-    -   Programs available (TB, Malaria, and other )
-    -   Client enrollment tracking
--   **Search & Reporting**
-    -   Client search by name
-    -   Enrollment status reports
+**Dual Authentication** - Web UI (Session-based) - API (Sanctum tokens)
+**Health Program Management** - Programs available (TB, Malaria, and other ) - Client enrollment tracking
+**Search & Reporting** - Client search by name - Enrollment status reports
 
-## 🛠 Technology Stack
+## Technology Stack
 
-| Component         | Technology          |
-| ----------------- | ------------------- |
-| Backend Framework | Laravel 12(PHP 8.2) |
-| Authentication    | Laravel Sanctum     |
-| Database          | MySQL 8.0+          |
-| API Documentation | Swagger/OpenAPI     |
-| Frontend          | Blade Templates     |
+| Component         | Technology           |
+| ----------------- | -------------------- |
+| Backend Framework | Laravel 12 (PHP 8.2) |
+| Authentication    | Laravel Sanctum      |
+| Database          | Sqlie/MySQL 8.0+     |
+| API Documentation | Swagger/OpenAPI      |
+| Frontend          | Blade Templates      |
 
-## ⚙️ System Requirements
+## System Requirements
 
 -   PHP 8.2+
--   MySQL 8.0+
--   Composer 2.5+
+-   Sqlie/MySQL 8.0+
 -   Node.js 18+ (for frontend assets) (Optional for those using frameworks)
 
-## 🚀 Installation
+## Installation
 
 ### 1. Clone Repository
 
-```bash
+````bash
 git clone https://github.com/richiekaroki/health-info-system.git
 cd health-info-system
 
 2. Install Dependencies
-bash
-composer install
-npm install && npm run build
+
+```bash
+        composer install
+        npm install && npm run build
 
 3. Configure Environment
-bash
-cp .env.example .env
-php artisan key:generate
+
+```bash
+    cp .env.example .env
+    php artisan key:generate
+
 
 Edit .env:
-ini
+
 DB_DATABASE=health_db
 DB_USERNAME=root
 DB_PASSWORD=your_password
 
 4. Database Setup
-bash
+
+```bash
 php artisan migrate --seed
 
 5. Start Development Server
-bash
+
+```bash
 php artisan serve
+
+
 Access: http://127.0.0.1:8000
 
 🔐 API Authentication Flow
+
 Sample Request: Login
-bash
+
 curl -X POST http://127.0.0.1:8000/api/v1/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@example.com","password":"password"}'
 
+
 Sample Response
-json
+
 {
   "token": "1|AbCdE...",
   "user": {
@@ -86,22 +88,24 @@ json
   }
 }
 
+
 Using the Token
-bash
+
 curl -H "Authorization: Bearer 1|AbCdE..." \
   http://127.0.0.1:8000/api/v1/clients
 
-📚 API Documentation
+API Documentation
+
 Interactive Swagger docs available at:
 http://localhost:8000/api/documentation
 
-🚨 Troubleshooting
-Common Issues
+Troubleshooting
 Migration Errors
 
-bash
-# Reset and re-run
+```bash
 php artisan migrate:fresh --seed
+
+
 Token Authentication Fails
 
 Verify SANCTUM_STATEFUL_DOMAINS in .env
@@ -110,26 +114,20 @@ Check token expiration (default: 7 days)
 
 Swagger Docs Not Loading
 
-bash
 php artisan l5-swagger:generate
+
 Production Checklist
-ini
-# .env.production
 APP_ENV=production
 APP_DEBUG=false
 SESSION_SECURE_COOKIE=true
 SANCTUM_TOKEN_EXPIRATION=1440  # 1 day
+
 🤝 Contributing
+
 Fork the repository
-
 Create a feature branch (git checkout -b feature/amazing-feature)
-
 Commit changes (git commit -m 'Add amazing feature')
-
 Push to branch (git push origin feature/amazing-feature)
-
 Open a Pull Request
 
-
-
-```
+````
