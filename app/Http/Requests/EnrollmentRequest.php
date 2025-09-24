@@ -8,26 +8,39 @@ class EnrollmentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return true; // Adjust if you want stricter policy-based rules
     }
 
     public function rules(): array
     {
         return [
-            'program_ids' => 'required|array|min:1',
-            'program_ids.*' => 'exists:programs,id',
-            'status' => 'sometimes|string|in:active,pending,completed',
-            'enrollment_date' => 'sometimes|date|after_or_equal:today'
+            'program_ids'        => 'required|array|min:1',
+            'program_ids.*'      => 'exists:programs,id',
+
+            'status'             => 'nullable|in:pending,active,completed',
+            'enrollment_date'    => 'nullable|date',
+            'completion_date'    => 'nullable|date|after_or_equal:enrollment_date',
+
+            'actual_cost'        => 'nullable|numeric|min:0',
+            'attendance_weeks'   => 'nullable|integer|min:0',
+            'total_sessions'     => 'nullable|integer|min:0',
+            'completed_sessions' => 'nullable|integer|min:0',
+
+            'medical_clearance'  => 'nullable|boolean',
+            'clearance_expiry'   => 'nullable|date|after:enrollment_date',
+
+            'coach_id'           => 'nullable|exists:users,id',
+            'progress_notes'     => 'nullable|string|max:1000',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'program_ids.required' => 'At least one program must be selected',
-            'program_ids.*.exists' => 'One or more selected programs are invalid',
-            'status.in' => 'Status must be active, pending, or completed',
-            'enrollment_date.after_or_equal' => 'Enrollment date cannot be in the past'
+            'program_ids.required'   => 'Please select at least one program.',
+            'program_ids.*.exists'   => 'One or more selected programs do not exist.',
+            'completion_date.after_or_equal' => 'Completion date must be the same or after the enrollment date.',
+            'clearance_expiry.after' => 'Clearance expiry must be after the enrollment date.',
         ];
     }
 }

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreProgramRequest;
-use App\Http\Resources\ProgramResource;
 use App\Models\Program;
+use App\Http\Resources\ProgramResource;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,9 +27,17 @@ class ProgramController extends Controller
         ]);
     }
 
-    public function store(StoreProgramRequest $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
-        $program = Program::create($request->validated() + [
+        $data = $request->validate([
+            'name'        => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'is_active'   => 'boolean',
+            'code'        => 'nullable|string|max:50',
+            'duration_weeks' => 'nullable|integer',
+        ]);
+
+        $program = Program::create($data + [
             'created_by' => Auth::id(),
         ]);
 
@@ -63,10 +71,13 @@ class ProgramController extends Controller
             ])
             ->paginate(15);
 
+        // Normalized response shaped as simple array
         $clientData = $clients->map(function ($client) {
             return [
                 'id'              => $client->id,
-                'name'            => $client->full_name,
+                'first_name'      => $client->first_name,
+                'last_name'       => $client->last_name,
+                'full_name'       => $client->full_name,
                 'email'           => $client->email,
                 'status'          => $client->pivot->status,
                 'enrolled_at'     => $client->pivot->enrollment_date,

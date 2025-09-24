@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Program extends Model
 {
     protected $fillable = [
-        'code', 'title', 'description', 'duration_weeks', 'is_active',
+        'code', 'name', 'description', 'duration_weeks', 'is_active',
         'category_id', 'created_by', 'cost', 'type'
     ];
 

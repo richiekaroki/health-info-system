@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Client extends Model
 {
     protected $fillable = [
-        'full_name', 'preferred_name', 'email', 'phone', 'phone_alt',
+        'first_name', 'last_name', 'preferred_name', 'email', 'phone', 'phone_alt',
         'birth_date', 'gender', 'address_line1', 'address_line2',
         'city', 'state', 'postal_code', 'country_code',
         'blood_type', 'known_allergies', 'medical_conditions',
@@ -20,6 +20,15 @@ class Client extends Model
         'birth_date' => 'date',
         'custom_fields' => 'array',
     ];
+
+    // computed accessor for backward compatibility
+    public function getFullNameAttribute(): ?string
+    {
+        $first = $this->first_name ?? '';
+        $last  = $this->last_name ?? '';
+        $full = trim($first . ' ' . $last);
+        return $full === '' ? null : $full;
+    }
 
     public function programs(): BelongsToMany
     {

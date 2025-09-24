@@ -2,44 +2,37 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProgramResource extends JsonResource
 {
-    public function toArray($request)
+    public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'code' => $this->code,
-            'title' => $this->title,
+            'id'          => $this->id,
+            'code'        => $this->code,
+            'name'        => $this->name ?? $this->title ?? null,
             'description' => $this->description,
-            'duration' => $this->duration_weeks . ' weeks',
-            'status' => $this->is_active ? 'Active' : 'Inactive',
-            'type' => ucfirst($this->type),
-            'cost' => $this->cost ? '$' . number_format($this->cost, 2) : 'Free',
-
-            'category' => $this->whenLoaded('category', fn() => [
-                'id' => $this->category->id,
-                'name' => $this->category->name
-            ]),
-
-            'clients' => $this->whenLoaded('clients', function() {
-                return $this->clients->map(function($client) {
+            'duration_weeks' => $this->duration_weeks,
+            'is_active'   => (bool)$this->is_active,
+            'type'        => $this->type,
+            'cost'        => $this->cost,
+            'clients_count' => $this->when(isset($this->clients_count), $this->clients_count),
+            'created_by'  => $this->created_by,
+            'created_at'  => $this->created_at,
+            'updated_at'  => $this->updated_at,
+            'enrollments' => $this->whenLoaded('enrollments', function () {
+                // if you have direct enrollments relation (Enrollment model)
+                return $this->enrollments->map(function ($enroll) {
                     return [
-                        'id' => $client->id,
-                        'name' => $client->full_name,
-                        'status' => $client->pivot->status,
-                        'enrolled_on' => optional($client->pivot->enrollment_date)->format('Y-m-d'),
-                        'coach_id' => $client->pivot->assigned_coach_id
+                        'id' => $enroll->id,
+                        'client_id' => $enroll->client_id,
+                        'status' => $enroll->status,
+                        'enrollment_date' => $enroll->enrollment_date,
                     ];
                 });
             }),
-
-            'clients_count' => $this->whenNotNull($this->clients_count),
-            'active_clients_count' => $this->whenNotNull($this->active_clients_count),
-
-            'created_at' => $this->created_at->format('Y-m-d'),
-            'created_by' => $this->creator->name ?? null
         ];
     }
 }

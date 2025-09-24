@@ -72,9 +72,15 @@ Route::prefix('v1')->group(function () {
             ->name('api.v1.programs.clients');
 
         // Enrollment
-        Route::post('clients/{client}/enroll', [EnrollmentController::class, 'enroll'])
-            ->name('api.v1.enrollments.enroll');
-        Route::delete('clients/{client}/unenroll/{program}', [EnrollmentController::class, 'unenroll'])
-            ->name('api.v1.enrollments.unenroll');
+        Route::prefix('clients/{client}')->group(function () {
+            Route::get('enrollments', [EnrollmentController::class, 'index'])
+                ->name('api.v1.enrollments.index');
+
+            Route::post('enroll', [EnrollmentController::class, 'enroll'])
+                ->name('api.v1.enrollments.enroll');
+
+            Route::delete('unenroll/{program}', [EnrollmentController::class, 'unenroll'])
+                ->name('api.v1.enrollments.unenroll');
+        });
     });
 });

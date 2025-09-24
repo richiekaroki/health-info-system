@@ -3,68 +3,74 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\EnrollmentRequest;
-use App\Http\Resources\ClientResource;
-use App\Models\Client;
-use App\Models\Program;
+use App\Models\Enrollment;
+use App\Http\Resources\EnrollmentResource;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class EnrollmentController extends Controller
 {
-    public function enroll(EnrollmentRequest $request, Client $client): JsonResponse
+    public function index(): JsonResponse
     {
-        $this->authorize('enroll', $client);
-
-        $validated = $request->validated();
-
-        $client->programs()->syncWithoutDetaching(
-            $this->prepareProgramAttachments($validated)
-        );
-
-        return response()->json([
-            'message' => 'Enrollment successful',
-            'data'    => new ClientResource(
-                $client->load(['programs' => function($query) {
-                    $query->withPivot([
-                        'status',
-                        'enrollment_date',
-                        'completion_date',
-                        'medical_clearance',
-                        'assigned_coach_id',
-                        'progress_notes'
-                    ]);
-                }])
-            )
-        ], 201);
+        $enrollments = Enrollment::with(['client', 'program'])->paginate(15);
+        return response()->json(EnrollmentResource::collection($enrollments));
     }
 
-    public function unenroll(Client $client, Program $program): JsonResponse
+    public function show(Enrollment $enrollment): JsonResponse
     {
-        $this->authorize('unenroll', [$client, $program]);
+        $enrollment->load(['client', 'program']);
+        return response()->json(new EnrollmentResource($enrollment));
+    }
 
-        $client->programs()->detach($program->id);
-
-        return response()->json([
-            'message' => 'Unenrollment successful',
-            'data'    => new ClientResource(
-                $client->fresh()->load('programs')
-            )
+    public function store(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'client_id'         => 'required|exists:clients,id',
+            'program_id'        => 'required|exists:programs,id',
+            'status'            => 'required|string',
+            'enrollment_date'   => 'required|date',
+            'completion_date'   => 'nullable|date',
+            'actual_cost'       => 'nullable|numeric',
+            'attendance_weeks'  => 'nullable|integer',
+            'total_sessions'    => 'nullable|integer',
+            'completed_sessions'=> 'nullable|integer',
+            'medical_clearance' => 'boolean',
+            'clearance_expiry'  => 'nullable|date',
+            'progress_notes'    => 'nullable|string',
         ]);
+
+        $enrollment = Enrollment::create($data);
+
+        return response()->json(
+            new EnrollmentResource($enrollment->load(['client', 'program'])),
+            201
+        );
     }
 
-    protected function prepareProgramAttachments(array $validated): array
+    public function update(Request $request, Enrollment $enrollment): JsonResponse
     {
-        return collect($validated['program_ids'])
-            ->mapWithKeys(fn ($id) => [
-                $id => [
-                    'status'             => $validated['status'] ?? 'pending',
-                    'enrollment_date'    => $validated['enrollment_date'] ?? now(),
-                    'completion_date'    => $validated['completion_date'] ?? null,
-                    'medical_clearance'  => $validated['medical_clearance'] ?? false,
-                    'assigned_coach_id'  => $validated['coach_id'] ?? null,
-                    'progress_notes'     => $validated['progress_notes'] ?? null,
-                ]
-            ])
-            ->toArray();
+        $data = $request->validate([
+            'status'            => 'required|string',
+            'completion_date'   => 'nullable|date',
+            'actual_cost'       => 'nullable|numeric',
+            'attendance_weeks'  => 'nullable|integer',
+            'total_sessions'    => 'nullable|integer',
+            'completed_sessions'=> 'nullable|integer',
+            'medical_clearance' => 'boolean',
+            'clearance_expiry'  => 'nullable|date',
+            'progress_notes'    => 'nullable|string',
+        ]);
+
+        $enrollment->update($data);
+
+        return response()->json(
+            new EnrollmentResource($enrollment->load(['client', 'program']))
+        );
+    }
+
+    public function destroy(Enrollment $enrollment): JsonResponse
+    {
+        $enrollment->delete();
+        return response()->json(null, 204);
     }
 }

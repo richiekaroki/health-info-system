@@ -38,7 +38,8 @@ class ClientController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'full_name'   => 'required|string|max:255',
+            'first_name'  => 'required|string|max:100',
+            'last_name'   => 'nullable|string|max:100',
             'email'       => 'required|email|unique:clients',
             'phone'       => 'nullable|string|max:20',
             'birth_date'  => 'nullable|date|before:today',
@@ -61,6 +62,24 @@ class ClientController extends Controller
             'data' => new ClientResource(
                 $client->load('programs')
             )
+        ]);
+    }
+
+    public function update(Request $request, Client $client): JsonResponse
+    {
+        $validated = $request->validate([
+            'first_name'  => 'sometimes|required|string|max:100',
+            'last_name'   => 'sometimes|nullable|string|max:100',
+            'email'       => 'sometimes|required|email|unique:clients,email,' . $client->id,
+            'phone'       => 'nullable|string|max:20',
+            'birth_date'  => 'nullable|date',
+        ]);
+
+        $client->update($validated);
+
+        return response()->json([
+            'message' => 'Client updated successfully',
+            'data'    => new ClientResource($client)
         ]);
     }
 }
