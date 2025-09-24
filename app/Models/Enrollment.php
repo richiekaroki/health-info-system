@@ -24,9 +24,9 @@ class Enrollment extends Model
     ];
 
     protected $casts = [
-        'enrollment_date'   => 'date',
-        'completion_date'   => 'date',
-        'clearance_expiry'  => 'date',
+        'enrollment_date' => 'date',
+        'completion_date' => 'date',
+        'clearance_expiry' => 'date',
         'medical_clearance' => 'boolean',
     ];
 
@@ -40,6 +40,7 @@ class Enrollment extends Model
         return $this->belongsTo(Program::class);
     }
 
+    // FIXED: Added the missing coach relationship
     public function coach(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_coach_id');

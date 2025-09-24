@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Client extends Model
 {
@@ -21,15 +22,16 @@ class Client extends Model
         'custom_fields' => 'array',
     ];
 
-    // computed accessor for backward compatibility
+    // FIXED: Added the missing full_name accessor
     public function getFullNameAttribute(): ?string
     {
         $first = $this->first_name ?? '';
-        $last  = $this->last_name ?? '';
-        $full = trim($first . ' ' . $last);
+        $last = $this->last_name ?? '';
+        $full = trim("{$first} {$last}");
         return $full === '' ? null : $full;
     }
 
+    // Existing relationships
     public function programs(): BelongsToMany
     {
         return $this->belongsToMany(Program::class, 'client_program')
@@ -63,5 +65,11 @@ class Client extends Model
     public function primaryProvider(): BelongsTo
     {
         return $this->belongsTo(User::class, 'primary_provider_id');
+    }
+
+    // ADDED: Direct enrollments relationship (for Enrollment model)
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class);
     }
 }
