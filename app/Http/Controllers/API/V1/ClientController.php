@@ -13,6 +13,12 @@ use Illuminate\Http\Request;
  */
 class ClientController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum');
+        $this->authorizeResource(Client::class, 'client');
+    }
+
     public function index(): JsonResponse
     {
         $clients = Client::with(['programs' => function($query) {
@@ -30,7 +36,9 @@ class ClientController extends Controller
             'data' => ClientResource::collection($clients),
             'meta' => [
                 'current_page' => $clients->currentPage(),
-                'total'        => $clients->total()
+                'total' => $clients->total(),
+                'per_page' => $clients->perPage(),
+                'last_page' => $clients->lastPage(),
             ]
         ]);
     }
@@ -38,11 +46,24 @@ class ClientController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'full_name'   => 'required|string|max:255',
-            'email'       => 'required|email|unique:clients',
-            'phone'       => 'nullable|string|max:20',
-            'birth_date'  => 'nullable|date|before:today',
-            'gender'      => 'nullable|in:male,female,non-binary,other,prefer_not_to_say',
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'nullable|string|max:100',
+            'email' => 'required|email|unique:clients',
+            'phone' => 'nullable|string|max:20',
+            'birth_date' => 'nullable|date|before:today',
+            'gender' => 'nullable|in:male,female,non-binary,other,prefer_not_to_say',
+            'preferred_name' => 'nullable|string|max:100',
+            'address_line1' => 'nullable|string|max:255',
+            'address_line2' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
+            'postal_code' => 'nullable|string|max:20',
+            'country_code' => 'nullable|string|size:2',
+        ], [
+            'first_name.required' => 'First name is required.',
+            'email.required' => 'Email address is required.',
+            'email.unique' => 'This email address is already registered.',
+            'birth_date.before' => 'Birth date must be in the past.',
         ]);
 
         $validated['created_by'] = $request->user()->id;
@@ -51,7 +72,7 @@ class ClientController extends Controller
 
         return response()->json([
             'message' => 'Client created successfully',
-            'data'    => new ClientResource($client)
+            'data' => new ClientResource($client)
         ], 201);
     }
 
@@ -59,8 +80,56 @@ class ClientController extends Controller
     {
         return response()->json([
             'data' => new ClientResource(
-                $client->load('programs')
+                $client->load(['programs'])
             )
         ]);
+    }
+
+    public function update(Request $request, Client $client): JsonResponse
+    {
+        $validated = $request->validate([
+            'first_name' => 'sometimes|required|string|max:100',
+            'last_name' => 'sometimes|nullable|string|max:100',
+            'email' => 'sometimes|required|email|unique:clients,email,' . $client->id,
+            'phone' => 'nullable|string|max:20',
+            'birth_date' => 'nullable|date|before:today',
+            'gender' => 'nullable|in:male,female,non-binary,other,prefer_not_to_say',
+            'preferred_name' => 'nullable|string|max:100',
+            'address_line1' => 'nullable|string|max:255',
+            'address_line2' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
+            'postal_code' => 'nullable|string|max:20',
+            'country_code' => 'nullable|string|size:2',
+        ]);
+
+        $client->update($validated);
+
+        return response()->json([
+            'message' => 'Client updated successfully',
+            'data' => new ClientResource($client)
+        ]);
+    }
+
+    // ADDED: Missing destroy method
+    public function destroy(Client $client): JsonResponse
+    {
+        // Check if client has active enrollments
+        $activeEnrollments = $client->programs()
+            ->wherePivot('status', 'active')
+            ->count();
+
+        if ($activeEnrollments > 0) {
+            return response()->json([
+                'message' => 'Cannot delete client with active program enrollments',
+                'active_enrollments' => $activeEnrollments
+            ], 422);
+        }
+
+        $client->delete();
+
+        return response()->json([
+            'message' => 'Client deleted successfully'
+        ], 200);
     }
 }

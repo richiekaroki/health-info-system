@@ -1,0 +1,341 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Health Info System API",
+        "description": "API Documentation for Client and Program Management",
+        "termsOfService": "https://example.com/terms",
+        "contact": {
+            "email": "api@example.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Local Development"
+        },
+        {
+            "url": "https://api.yourdomain.com",
+            "description": "Production"
+        }
+    ],
+    "paths": {
+        "/api/v1/clients/{client}/enrollments": {
+            "get": {
+                "tags": [
+                    "Enrollments"
+                ],
+                "summary": "List all enrollments for a client",
+                "operationId": "a631c0347acfaaf139e3f7a657fcb4b6",
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Enrollments retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Enrollment"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/clients/{client}/enroll": {
+            "post": {
+                "tags": [
+                    "Enrollments"
+                ],
+                "summary": "Enroll a client into programs",
+                "operationId": "7809b815a62ca793561f70aad1775083",
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EnrollmentRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Enrollment successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Enrollment"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/clients/{client}/unenroll/{program}": {
+            "delete": {
+                "tags": [
+                    "Enrollments"
+                ],
+                "summary": "Unenroll a client from a program",
+                "operationId": "6c0bfd595ec7aef8c925e9f775e012bc",
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "program",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Unenrollment successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Enrollment"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Enrollment": {
+                "properties": {
+                    "program_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "program_name": {
+                        "type": "string",
+                        "example": "Wellness Bootcamp"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "active"
+                    },
+                    "enrollment_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-01-10"
+                    },
+                    "completion_date": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "actual_cost": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 200.5,
+                        "nullable": true
+                    },
+                    "attendance_weeks": {
+                        "type": "integer",
+                        "example": 12,
+                        "nullable": true
+                    },
+                    "total_sessions": {
+                        "type": "integer",
+                        "example": 24,
+                        "nullable": true
+                    },
+                    "completed_sessions": {
+                        "type": "integer",
+                        "example": 18,
+                        "nullable": true
+                    },
+                    "medical_clearance": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "clearance_expiry": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-12-31",
+                        "nullable": true
+                    },
+                    "assigned_coach_id": {
+                        "type": "integer",
+                        "example": 5,
+                        "nullable": true
+                    },
+                    "progress_notes": {
+                        "type": "string",
+                        "example": "Client improving well",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "EnrollmentRequest": {
+                "required": [
+                    "program_ids"
+                ],
+                "properties": {
+                    "program_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "example": [
+                            1,
+                            2
+                        ]
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "pending"
+                    },
+                    "enrollment_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-01-10"
+                    },
+                    "completion_date": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "actual_cost": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 150,
+                        "nullable": true
+                    },
+                    "attendance_weeks": {
+                        "type": "integer",
+                        "example": 8,
+                        "nullable": true
+                    },
+                    "total_sessions": {
+                        "type": "integer",
+                        "example": 16,
+                        "nullable": true
+                    },
+                    "completed_sessions": {
+                        "type": "integer",
+                        "example": 12,
+                        "nullable": true
+                    },
+                    "medical_clearance": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "clearance_expiry": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "coach_id": {
+                        "type": "integer",
+                        "example": 5,
+                        "nullable": true
+                    },
+                    "progress_notes": {
+                        "type": "string",
+                        "example": "Initial notes",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Enrollments",
+            "description": "Enrollments"
+        }
+    ],
+    "externalDocs": {
+        "description": "Find more info here",
+        "url": "https://swagger.io"
+    }
+}

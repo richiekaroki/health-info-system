@@ -2,44 +2,47 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Enrollment extends Model
 {
-    use HasFactory;
-
-    /**
-     * Mass assignable attributes
-     */
     protected $fillable = [
         'client_id',
         'program_id',
-        'user_id',     // who created/managed the enrollment
-        'status',      // e.g., active, completed, dropped
-        'start_date',
-        'end_date',
+        'status',
+        'enrollment_date',
+        'completion_date',
+        'actual_cost',
+        'attendance_weeks',
+        'total_sessions',
+        'completed_sessions',
+        'medical_clearance',
+        'clearance_expiry',
+        'assigned_coach_id',
+        'progress_notes',
     ];
 
-    /**
-     * Relationships
-     */
+    protected $casts = [
+        'enrollment_date' => 'date',
+        'completion_date' => 'date',
+        'clearance_expiry' => 'date',
+        'medical_clearance' => 'boolean',
+    ];
 
-    // An enrollment belongs to a client
-    public function client()
+    public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
     }
 
-    // An enrollment belongs to a program
-    public function program()
+    public function program(): BelongsTo
     {
         return $this->belongsTo(Program::class);
     }
 
-    // An enrollment may be created/managed by a user (provider/admin)
-    public function user()
+    // FIXED: Added the missing coach relationship
+    public function coach(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'assigned_coach_id');
     }
 }

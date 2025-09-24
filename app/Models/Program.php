@@ -5,14 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Program extends Model
 {
     protected $fillable = [
-        'code', 'title', 'description', 'duration_weeks', 'is_active',
+        'code', 'name', 'description', 'duration_weeks', 'is_active',
         'category_id', 'created_by', 'cost', 'type'
     ];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+        'cost' => 'decimal:2',
+    ];
+
+    // VERIFIED: Category relationship exists
     public function category(): BelongsTo
     {
         return $this->belongsTo(ProgramCategory::class, 'category_id');
@@ -37,6 +44,12 @@ class Program extends Model
                 'assigned_coach_id'
             ])
             ->withTimestamps();
+    }
+
+    // ADDED: Direct enrollments relationship (for Enrollment model)
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class);
     }
 
     public function scopeActive($query)

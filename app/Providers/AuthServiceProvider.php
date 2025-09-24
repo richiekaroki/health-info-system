@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Models\Client;
 use App\Models\Program;
 use App\Policies\ClientPolicy;
+use App\Policies\EnrollmentPolicy;
 use App\Policies\ProgramPolicy;
 
 class AuthServiceProvider extends ServiceProvider
@@ -17,8 +18,8 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        Client::class  => ClientPolicy::class,
-        Program::class => ProgramPolicy::class,
+        Client::class  => EnrollmentPolicy::class,
+        Program::class => EnrollmentPolicy::class,
     ];
 
     /**

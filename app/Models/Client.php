@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Client extends Model
 {
     protected $fillable = [
-        'full_name', 'preferred_name', 'email', 'phone', 'phone_alt',
+        'first_name', 'last_name', 'preferred_name', 'email', 'phone', 'phone_alt',
         'birth_date', 'gender', 'address_line1', 'address_line2',
         'city', 'state', 'postal_code', 'country_code',
         'blood_type', 'known_allergies', 'medical_conditions',
@@ -21,6 +22,16 @@ class Client extends Model
         'custom_fields' => 'array',
     ];
 
+    // FIXED: Added the missing full_name accessor
+    public function getFullNameAttribute(): ?string
+    {
+        $first = $this->first_name ?? '';
+        $last = $this->last_name ?? '';
+        $full = trim("{$first} {$last}");
+        return $full === '' ? null : $full;
+    }
+
+    // Existing relationships
     public function programs(): BelongsToMany
     {
         return $this->belongsToMany(Program::class, 'client_program')
@@ -54,5 +65,11 @@ class Client extends Model
     public function primaryProvider(): BelongsTo
     {
         return $this->belongsTo(User::class, 'primary_provider_id');
+    }
+
+    // ADDED: Direct enrollments relationship (for Enrollment model)
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class);
     }
 }
